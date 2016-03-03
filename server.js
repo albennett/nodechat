@@ -20,5 +20,5 @@ server.listen(PORT, () => {
 });
 
 ws.on('connection', socket => {
-  console.log("connection", socket);
+  console.log("socket connected");
 });

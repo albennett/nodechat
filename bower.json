@@ -1,0 +1,21 @@
+{
+  "name": "nodechat",
+  "description": "",
+  "main": "server.js",
+  "authors": [
+    "Amy Lee Bennett <amyleeannebennett@gmail.com> (https://www.amylee.co/)"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/albennett/nodechat",
+  "moduleType": [],
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "socket.io-client": "^1.4.5"
+  }
+}
