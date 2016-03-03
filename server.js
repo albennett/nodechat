@@ -18,9 +18,23 @@ app.get('/', (req, res) => {
   res.render('index');
 });
 
-server.listen(PORT, () => {
-  console.log(`Server is listening on PORT ${PORT}`);
-});
+app.get('/chats', (req, res) =>{
+  db.query('SELECT * FROM chats', (err, result) => {
+    res.send(result.rows)
+  });
+})
+
+pg.connect(POSTGRES_URL, (err, client) => {
+  if (err) throw err
+
+  db = client;
+
+  server.listen(PORT, () => {
+    console.log(`Server is listening on PORT ${PORT}`);
+  });
+
+})
+
 
 ws.on('connection', socket => {
   console.log("socket connected");
