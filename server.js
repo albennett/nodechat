@@ -1,46 +1,49 @@
-'use strict';
+'use strict'
 
-const express = require('express');
-const app = express();
+const express = require('express')
+const app = express()
 const pg = require('pg').native
-const server = require('http').createServer(app); //express() raw node
-const ws = require('socket.io')(server);
+const server = require('http').createServer(app) //express(), raw node
+const ws = require('socket.io')(server)
 
-const PORT = process.env.PORT || 3000;
-const POSTGRES_URL = process.env.POSTGRES_URL || 'postgres://localhost:5432/nodechat'
-let db
+const PORT = process.env.PORT || 3000
+const POSTGRES_URL = process.env.POSTGRES_URL
+  || 'postgres://localhost:5432/nodechat'
 
-app.set('view engine', 'jade');
+const db = new pg.Client(POSTGRES_URL)
 
-app.use(express.static('public'));
+app.set('view engine', 'jade')
+
+app.use(express.static('public'))
 
 app.get('/', (req, res) => {
-  res.render('index');
-});
-
-app.get('/chats', (req, res) =>{
-  db.query('SELECT * FROM chats', (err, result) => {
-    res.send(result.rows)
-  });
+  res.render('index')
 })
 
-pg.connect(POSTGRES_URL, (err, client) => {
+app.get('/chats', (req, res) => {
+  db.query('SELECT * FROM chats', (err, result) => {
+    if (err) throw err
+
+    res.send(result.rows)
+  })
+})
+
+db.connect((err) => {
   if (err) throw err
 
-  db = client;
-
   server.listen(PORT, () => {
-    console.log(`Server is listening on PORT ${PORT}`);
-  });
+    console.log(`Server listening on port: ${PORT}`)
+  })
+})
 
+ws.on('connection', socket => {
+  console.log('socket connected')
+
+  socket.on('sendChat', msg => {
+    console.log(msg)
+    socket.broadcast.emit('receiveChat', msg)
+  })
 })
 
 
-ws.on('connection', socket => {
-  console.log("socket connected");
 
-socket.on('sendChat', msg => {
-  console.log("msg", msg);
-  socket.broadcast.emit('receiveChat', msg)
-  })
-});

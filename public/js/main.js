@@ -42,5 +42,22 @@
     return li
   }
 
+  function getJSON(url, cb) {
+    const request = new XMLHttpRequest()
+
+    request.open('GET', url)
+
+    request.onload = () => {
+      cb(JSON.parse(request.responseText))
+    }
+
+    request.send()
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    getJSON('/chats', chats => {
+      chats.forEach(displayChat)
+    })
+  })
 
 }());
