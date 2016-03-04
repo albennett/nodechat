@@ -3,7 +3,7 @@
 const express = require('express')
 const app = express()
 const pg = require('pg').native
-const server = require('http').createServer(app) //express(), raw node
+const server = require('http').createServer(app)
 const ws = require('socket.io')(server)
 
 const PORT = process.env.PORT || 3000
@@ -20,13 +20,13 @@ app.get('/', (req, res) => {
   res.render('index')
 })
 
-app.get('/chats', (req, res) => {
-  db.query('SELECT * FROM chats', (err, result) => {
-    if (err) throw err
+// app.get('/chats', (req, res) => {
+//   db.query('SELECT * FROM chats', (err, result) => {
+//     if (err) throw err
 
-    res.send(result.rows)
-  })
-})
+//     res.send(result.rows)
+//   })
+// })
 
 db.connect((err) => {
   if (err) throw err
@@ -37,13 +37,20 @@ db.connect((err) => {
 })
 
 ws.on('connection', socket => {
-  console.log('socket connected')
+  console.log('socket connected', socket.id)
+
+  db.query('SELECT * FROM chats', (err, result) => {
+    if (err) throw err
+
+    socket.emit('receiveChat', result.rows)
+  })
 
   socket.on('sendChat', msg => {
-    console.log(msg)
-    socket.broadcast.emit('receiveChat', msg)
+    db.query('INSERT INTO chats (name, text) VALUES ($1, $2)',
+      [msg.name, msg.text], (err) => {
+        if (err) throw err;
+
+        socket.broadcast.emit('receiveChat', [msg])
+    })
   })
 })
-
-
-

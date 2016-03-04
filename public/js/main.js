@@ -3,12 +3,12 @@
 
   const ws = io.connect()
 
-  ws.on('connect', () => {
+  ws.on('connect', (socket) => {
     console.log('socket connected')
   })
 
-  ws.on('receiveChat', msg => {
-    displayChat(msg)
+  ws.on('receiveChat', msgs => {
+    msgs.forEach(displayChat)
   })
 
   const form = document.querySelector('form')
@@ -23,22 +23,29 @@
     }
 
     ws.emit('sendChat', chat)
-    displayChat(chat)
+    // displayChat(chat)
     text.value = ''
     event.preventDefault()
   })
 
   function displayChat (chat) {
-    const li = generateLI(chat.name, chat.text)
+    if (!document.querySelector(`[data-id="${chat._id}"]`)) {
+      const li = generateLI(chat)
 
-    ul.appendChild(li)
+      ul.appendChild(li)
+    }
   }
 
-  function generateLI (name, text) {
+  function generateLI (chat) {
     const li = document.createElement('li')
-    const textNode = document.createTextNode(`${name}: ${text}`)
+    const textNode = document.createTextNode(`${chat.name}: ${chat.text}`)
+    const dataId = document.createAttribute('data-id')
 
+    dataId.value = chat._id
+
+    li.setAttributeNode(dataId)
     li.appendChild(textNode)
+
     return li
   }
 
@@ -54,10 +61,10 @@
     request.send()
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    getJSON('/chats', chats => {
-      chats.forEach(displayChat)
-    })
-  })
+  // document.addEventListener('DOMContentLoaded', () => {
+  //   getJSON('/chats', chats => {
+  //     chats.forEach(displayChat)
+  //   })
+  // })
 
 }());
